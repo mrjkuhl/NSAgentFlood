@@ -1,12 +1,12 @@
-NSAgentFlood
-------------
+NSAgent Flood
+-------------
 
-This directory contains the 0.1-beta release of NSAgentFlood.
+This directory contains the 0.1-beta release of NSAgent Flood.
 
 About
 -----
 
-NSAgentFlood is a game made to spam the Internet with false information, 
+NSAgent Flood is a game made to spam the Internet with false information, 
 including through the use of NSAFlood. When the player plays the game, their 
 actions are mimicked on search engines, such that their actions in game are 
 queried. As an example, when the player learns to build bombs, the game will 
@@ -21,7 +21,7 @@ dealt the damage.
 Plot
 ----
 
-NSAgentFlood is an Action-Fantasy game in which the NSA has declared 
+NSAgent Flood is an Action-Fantasy game in which the NSA has declared 
 martial-law. In this world the NSA has the cooperation of the rest of the US 
 government in maintaining control of North America through invasive domestic 
 surveillance.
