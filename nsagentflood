@@ -27,6 +27,17 @@ def loadMapConf(confFile):
 
 	return filePointer;
 
+def loadStage(renderer, stage):
+
+	stage = loadMapConf(world + "level1/stages/" + stage + ".conf");
+	movementZoneList = readZoneList(stage);
+
+	image = SDL_LoadBMP(world + "resources/" + stage.get('stage', 'background'));
+	background = SDL_CreateTextureFromSurface(renderer, image);
+	SDL_FreeSurface(image);
+
+	return background, movementZoneList;
+
 def readZoneList(stageConf):
 
 	zoneList = [];
@@ -95,12 +106,7 @@ def run():
 
 	windowsurface = SDL_GetWindowSurface(window);
 
-	stage = loadMapConf(world + "level1/stages/stage1.conf");
-	movementZoneList = readZoneList(stage);
-
-	image = SDL_LoadBMP(world + "resources/stage1.bmp");
-	background = SDL_CreateTextureFromSurface(renderer, image);
-	SDL_FreeSurface(image);
+	background, movementZoneList = loadStage(renderer, "stage1");
 
 	player = setPlayerOrientation(renderer, "left");
 
