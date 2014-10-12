@@ -29,7 +29,6 @@ def loadMapConf(confFile):
 
 def loadStage(renderer, stage):
 
-	stage = loadMapConf(world + "level1/stages/" + stage + ".conf");
 	movementZoneList = readZoneList(stage);
 
 	image = SDL_LoadBMP(world + "resources/" + stage.get('stage', 'background'));
@@ -106,7 +105,8 @@ def run():
 
 	windowsurface = SDL_GetWindowSurface(window);
 
-	background, movementZoneList = loadStage(renderer, "stage1");
+	stage = loadMapConf(world + "level1/stages/stage1.conf");
+	background, movementZoneList = loadStage(renderer, stage);
 
 	player = setPlayerOrientation(renderer, "left");
 
@@ -128,29 +128,61 @@ def run():
 		elif event.type == SDL_KEYDOWN:
 
 			keyPressed = event.key.keysym.sym;
-			if keyPressed == moveUpKey and testZone(movementZoneList, destination.x, destination.y - int(spriteSize / 2)):
+			if keyPressed == moveUpKey:
 
-				destination.y -= int(spriteSize / 2);
+				if destination.y - spriteSize <= 0:
 
-			elif keyPressed == moveDownKey and testZone(movementZoneList, destination.x, destination.y + int(spriteSize / 2)):
+					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageUp')  + ".conf");
+					background, movementZoneList = loadStage(renderer, stage);
+					destination.y = 560;
+					continue;
 
-				destination.y += int(spriteSize / 2);
+				if testZone(movementZoneList, destination.x, destination.y - stepSize):
+
+					destination.y -= stepSize;
+
+			elif keyPressed == moveDownKey:
+
+				if destination.y + spriteSize >= 600:
+
+					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageDown')  + ".conf");
+					background, movementZoneList = loadStage(renderer, stage);
+					destination.y = 0;
+					continue;
+
+				if testZone(movementZoneList, destination.x, destination.y + stepSize):
+
+					destination.y += stepSize;
 
 			elif keyPressed == moveLeftKey: 
 
 				player = setPlayerOrientation(renderer, "left");
 
-				if testZone(movementZoneList, destination.x - int(spriteSize / 2), destination.y):
+				if destination.x <= 0:
 
-					destination.x -= int(spriteSize / 2);
+					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageLeft')  + ".conf");
+					background, movementZoneList = loadStage(renderer, stage);
+					destination.x = 760;
+					continue;
+
+				if testZone(movementZoneList, destination.x - stepSize, destination.y):
+
+					destination.x -= stepSize;
 
 			elif keyPressed == moveRightKey:
 
 				player = setPlayerOrientation(renderer, "right");
 
-				if testZone(movementZoneList, destination.x + int(spriteSize / 2), destination.y):
+				if destination.x + spriteSize >= 800:
 
-					destination.x += int(spriteSize / 2);
+					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageRight')  + ".conf");
+					background, movementZoneList = loadStage(renderer, stage);
+					destination.x = 0;
+					continue;
+
+				if testZone(movementZoneList, destination.x + stepSize, destination.y):
+
+					destination.x += stepSize;
 
 			elif keyPressed == SDLK_ESCAPE:
 
@@ -166,6 +198,7 @@ def run():
 if __name__ == "__main__":
 
 	spriteSize = 40;
+	stepSize = int(spriteSize / 2);
 	windowWidth = 800;
 	windowHeight = 600;
 
