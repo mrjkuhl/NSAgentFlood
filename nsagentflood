@@ -207,6 +207,6 @@ if __name__ == "__main__":
 	moveLeftKey = SDLK_s;
 	moveRightKey = SDLK_f;
 
-	world = "/home/joelc/workspace/nsagentflood/worlds/nsagentflood/"
+	world = "./worlds/nsagentflood/"
 
 	sys.exit(run());
