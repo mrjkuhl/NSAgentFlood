@@ -19,6 +19,7 @@ import sys
 import ctypes
 from sdl2 import *
 import ConfigParser
+import time
 
 def loadMapConf(confFile):
 
@@ -62,6 +63,8 @@ def readEntityList(stage):
 				tmpDict['x'] = int(entity[0]);
 				tmpDict['y'] = int(entity[1]);
 				tmpDict['health'] = int(entity[2]);
+				tmpDict['atttimer'] = 0;
+				tmpDict['mvttimer'] = 0;
 				tmpDict['name'] = entity[3];
 				tmpDict['sprite'] = entity[4];
 
@@ -114,24 +117,24 @@ def setPlayerOrientation(renderer, orientation):
 
 	return SDL_CreateTextureFromSurface(renderer, image);
 
-def detectTarget(range, playerOrientation, destination, entityList):
+def detectTarget(range, orientation, destination, entityList):
 
 	targetx = destination.x;
 	targety = destination.y;
 
-	if playerOrientation == "left":
+	if orientation == "left":
 
 		targetx = destination.x - range;
 
-	elif playerOrientation == "right":
+	elif orientation == "right":
 
 		targetx = destination.x + range;
 
-	elif playerOrientation == "up":
+	elif orientation == "up":
 
 		targety = destination.y - range;
 
-	elif playerOrientation == "down":
+	elif orientation == "down":
 
 		targety = destination.y + range;
 
@@ -158,8 +161,8 @@ def run():
 	stage = loadMapConf(world + "level1/stages/stage1.conf");
 	background, movementZoneList, entityList = loadStage(renderer, stage);
 
-	playerOrientation = "left";
-	player = setPlayerOrientation(renderer, playerOrientation);
+	playerEntity = {'health': 10, 'orientation': "left"}
+	player = setPlayerOrientation(renderer, playerEntity['orientation']);
 
 	gameRun = True;
 	event = SDL_Event();
@@ -221,8 +224,8 @@ def run():
 
 			elif keyPressed == moveLeftKey: 
 
-				playerOrientation = "left";
-				player = setPlayerOrientation(renderer, playerOrientation);
+				playerEntity['orientation'] = "left";
+				player = setPlayerOrientation(renderer, playerEntity['orientation']);
 
 				if destination.x <= 0:
 
@@ -237,8 +240,8 @@ def run():
 
 			elif keyPressed == moveRightKey:
 
-				playerOrientation = "right";
-				player = setPlayerOrientation(renderer, playerOrientation);
+				playerEntity['orientation'] = "right";
+				player = setPlayerOrientation(renderer, playerEntity['orientation']);
 
 				if destination.x + spriteSize >= 800:
 
@@ -253,7 +256,7 @@ def run():
 
 			elif keyPressed == punchKey:
 
-				effectedEntity = detectTarget(spriteSize, playerOrientation, destination, entityList)
+				effectedEntity = detectTarget(spriteSize, playerEntity['orientation'], destination, entityList)
 				if effectedEntity:
 
 					print "You punched!";
@@ -267,7 +270,7 @@ def run():
 
 			elif keyPressed == kickKey:
 
-				effectedEntity = detectTarget(spriteSize, playerOrientation, destination, entityList)
+				effectedEntity = detectTarget(spriteSize, playerEntity['orientation'], destination, entityList)
 				if effectedEntity:
 
 					print "You kicked!";
@@ -284,6 +287,40 @@ def run():
 				gameRun = 0;
 
 				break;
+
+		for entity in entityList:
+
+			if time.time() > entity['atttimer'] + .5 and entity['x'] == destination.x + spriteSize and entity['y'] == destination.y:
+
+				if playerEntity['health'] == 1:
+
+					print "You died."
+					return;
+
+				entity['atttimer'] = time.time();
+				playerEntity['health'] -= 1;
+
+				print entity['name'] + "hit you!";
+
+			elif time.time() > entity['mvttimer'] + .2:
+
+				entity['mvttimer'] = time.time();
+
+				if entity['x'] > destination.x + spriteSize:
+
+					entity['x'] -= stepSize;
+
+				elif entity['x'] < destination.x + spriteSize:
+
+					entity['x'] += stepSize;
+
+				elif entity['y'] > destination.y:
+
+					entity['y'] -= stepSize;
+
+				elif entity['y'] < destination.y:
+
+					entity['y'] += stepSize;
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
