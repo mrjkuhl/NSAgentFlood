@@ -30,14 +30,46 @@ def loadMapConf(confFile):
 def loadStage(renderer, stage):
 
 	movementZoneList = readZoneList(stage);
+	entityList = readEntityList(stage);
 
 	image = SDL_LoadBMP(world + "resources/" + stage.get('stage', 'background'));
 	background = SDL_CreateTextureFromSurface(renderer, image);
 	SDL_FreeSurface(image);
 
-	return background, movementZoneList;
+	return background, movementZoneList, entityList;
 
-def readZoneList(stageConf):
+def readEntityList(stage):
+
+	entityList = [];
+	tmpList = [];
+	tmpDict = {};
+	counter = 1;
+
+	while True:
+
+		try:
+
+			entity = stage.get('stage', "entity" + str(counter));
+			entity = entity.split(',');
+
+			tmpList.append(entity);
+			counter += 1;
+
+		except:
+
+			for entity in tmpList:
+
+				tmpDict['x'] = int(entity[0]);
+				tmpDict['y'] = int(entity[1]);
+				tmpDict['health'] = int(entity[2]);
+				tmpDict['name'] = entity[3];
+				tmpDict['sprite'] = entity[4];
+
+				entityList.append(tmpDict)
+
+			return entityList;
+
+def readZoneList(stage):
 
 	zoneList = [];
 	counter = 1;
@@ -46,15 +78,13 @@ def readZoneList(stageConf):
 
 		try:
 
-			zone = stageConf.get('stage', "movementZone" + str(counter));
+			zone = stage.get('stage', "movementZone" + str(counter));
 			zoneList.append(zone);
 			counter += 1;
 
 		except:
 
-			break;
-
-	return zoneList;
+			return zoneList;
 
 def testZone(movementZoneList, x, y):
 
@@ -68,7 +98,6 @@ def testZone(movementZoneList, x, y):
 
 		if x >= movementZone[0] and y >= movementZone[1] and finalx <= movementZone[2] and y >= movementZone[3] and finalx <= movementZone[4] and finaly <= movementZone[5] and x >= movementZone[6] and finaly <= movementZone[7]:
 
-			print movementZone;
 			return True;
 
 	return False;
@@ -85,13 +114,34 @@ def setPlayerOrientation(renderer, orientation):
 
 	return SDL_CreateTextureFromSurface(renderer, image);
 
+def detectTarget(range, playerOrientation, destination, entityList):
 
-def renderFrame(renderer, background, sprite, spriteSource, destination):
+	targetx = destination.x;
+	targety = destination.y;
 
-	SDL_RenderCopy(renderer, background, None, None);
-	SDL_RenderCopy(renderer, sprite, spriteSource, destination);
+	if playerOrientation == "left":
 
-	SDL_RenderPresent(renderer);
+		targetx = destination.x - range;
+
+	elif playerOrientation == "right":
+
+		targetx = destination.x + range;
+
+	elif playerOrientation == "up":
+
+		targety = destination.y - range;
+
+	elif playerOrientation == "down":
+
+		targety = destination.y + range;
+
+	for entity in entityList:
+
+		if entity['x'] == targetx and entity['y'] == targety:
+
+			return entity;
+
+	return False;
 
 def run():
 
@@ -106,16 +156,31 @@ def run():
 	windowsurface = SDL_GetWindowSurface(window);
 
 	stage = loadMapConf(world + "level1/stages/stage1.conf");
-	background, movementZoneList = loadStage(renderer, stage);
+	background, movementZoneList, entityList = loadStage(renderer, stage);
 
-	player = setPlayerOrientation(renderer, "left");
+	playerOrientation = "left";
+	player = setPlayerOrientation(renderer, playerOrientation);
 
 	gameRun = True;
 	event = SDL_Event();
 
 	while gameRun:
 
-		renderFrame(renderer, background, player, spriteSource, destination);
+		SDL_RenderCopy(renderer, background, None, None);
+
+		for entity in entityList:
+
+			src = SDL_Rect(0, 0, spriteSize, spriteSize);
+			dst = SDL_Rect(entity['x'], entity['y'], spriteSize, spriteSize);
+			image = SDL_LoadBMP(world + "resources/" + entity['sprite']);
+			sprite = SDL_CreateTextureFromSurface(renderer, image);
+			SDL_FreeSurface(image);
+
+			SDL_RenderCopy(renderer, sprite, src, dst);
+
+		SDL_RenderCopy(renderer, player, spriteSource, destination);
+
+		SDL_RenderPresent(renderer);
 
 		SDL_WaitEvent(ctypes.byref(event))
 
@@ -133,7 +198,7 @@ def run():
 				if destination.y <= 0:
 
 					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageUp')  + ".conf");
-					background, movementZoneList = loadStage(renderer, stage);
+					background, movementZoneList, entityList = loadStage(renderer, stage);
 					destination.y = 560;
 					continue;
 
@@ -146,7 +211,7 @@ def run():
 				if destination.y + spriteSize >= 600:
 
 					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageDown')  + ".conf");
-					background, movementZoneList = loadStage(renderer, stage);
+					background, movementZoneList, entityList = loadStage(renderer, stage);
 					destination.y = 0;
 					continue;
 
@@ -156,12 +221,13 @@ def run():
 
 			elif keyPressed == moveLeftKey: 
 
-				player = setPlayerOrientation(renderer, "left");
+				playerOrientation = "left";
+				player = setPlayerOrientation(renderer, playerOrientation);
 
 				if destination.x <= 0:
 
 					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageLeft')  + ".conf");
-					background, movementZoneList = loadStage(renderer, stage);
+					background, movementZoneList, entityList = loadStage(renderer, stage);
 					destination.x = 760;
 					continue;
 
@@ -171,18 +237,47 @@ def run():
 
 			elif keyPressed == moveRightKey:
 
-				player = setPlayerOrientation(renderer, "right");
+				playerOrientation = "right";
+				player = setPlayerOrientation(renderer, playerOrientation);
 
 				if destination.x + spriteSize >= 800:
 
 					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageRight')  + ".conf");
-					background, movementZoneList = loadStage(renderer, stage);
+					background, movementZoneList, entityList = loadStage(renderer, stage);
 					destination.x = 0;
 					continue;
 
 				if testZone(movementZoneList, destination.x + stepSize, destination.y):
 
 					destination.x += stepSize;
+
+			elif keyPressed == punchKey:
+
+				effectedEntity = detectTarget(spriteSize, playerOrientation, destination, entityList)
+				if effectedEntity:
+
+					print "You punched!";
+					if effectedEntity['health'] == 1:
+
+						entityList.remove(effectedEntity);
+						print "You slew " + effectedEntity['name'] + "!";
+						continue;
+
+					effectedEntity['health'] -= 1
+
+			elif keyPressed == kickKey:
+
+				effectedEntity = detectTarget(spriteSize, playerOrientation, destination, entityList)
+				if effectedEntity:
+
+					print "You kicked!";
+					if effectedEntity['health'] == 1:
+
+						entityList.remove(effectedEntity);
+						print "You slew " + effectedEntity['name'] + "!";
+						continue;
+
+					effectedEntity['health'] -= 1
 
 			elif keyPressed == SDLK_ESCAPE:
 
@@ -206,6 +301,8 @@ if __name__ == "__main__":
 	moveDownKey = SDLK_d;
 	moveLeftKey = SDLK_s;
 	moveRightKey = SDLK_f;
+	punchKey = SDLK_t;
+	kickKey = SDLK_g;
 
 	world = "./worlds/nsagentflood/"
 
