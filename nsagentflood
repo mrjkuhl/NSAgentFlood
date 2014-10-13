@@ -290,7 +290,7 @@ def run():
 
 		for entity in entityList:
 
-			if time.time() > entity['atttimer'] + .5 and entity['x'] == destination.x + spriteSize and entity['y'] == destination.y:
+			if time.time() > entity['atttimer'] + .5 and (entity['x'] == destination.x + spriteSize or entity['x'] == destination.x - spriteSize) and entity['y'] == destination.y:
 
 				if playerEntity['health'] == 1:
 
@@ -306,11 +306,11 @@ def run():
 
 				entity['mvttimer'] = time.time();
 
-				if entity['x'] > destination.x + spriteSize:
+				if entity['x'] > destination.x + spriteSize and entity['x'] != destination.x - spriteSize:
 
 					entity['x'] -= stepSize;
 
-				elif entity['x'] < destination.x + spriteSize:
+				elif entity['x'] < destination.x + spriteSize and entity['x'] != destination.x - spriteSize:
 
 					entity['x'] += stepSize;
 
