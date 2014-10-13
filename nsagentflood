@@ -67,6 +67,8 @@ def readEntityList(stage):
 				tmpDict['mvttimer'] = 0;
 				tmpDict['name'] = entity[3];
 				tmpDict['sprite'] = entity[4];
+				tmpDict['attinterval'] = .8;
+				tmpDict['mvtinterval'] = .4;
 
 				entityList.append(tmpDict)
 
@@ -161,7 +163,7 @@ def run():
 	stage = loadMapConf(world + "level1/stages/stage1.conf");
 	background, movementZoneList, entityList = loadStage(renderer, stage);
 
-	playerEntity = {'health': 10, 'orientation': "left"}
+	playerEntity = {'health': 10, 'orientation': "left", 'atttimer': 0, 'mvttimer': 0, 'attinterval': .3, 'mvtinterval': .1}
 	player = setPlayerOrientation(renderer, playerEntity['orientation']);
 
 	gameRun = True;
@@ -196,7 +198,9 @@ def run():
 		elif event.type == SDL_KEYDOWN:
 
 			keyPressed = event.key.keysym.sym;
-			if keyPressed == moveUpKey:
+			if keyPressed == moveUpKey and time.time() > playerEntity['mvttimer'] + playerEntity['mvtinterval']:
+
+				playerEntity['mvttimer'] = time.time();
 
 				if destination.y <= 0:
 
@@ -209,7 +213,9 @@ def run():
 
 					destination.y -= stepSize;
 
-			elif keyPressed == moveDownKey:
+			elif keyPressed == moveDownKey and time.time() > playerEntity['mvttimer'] + playerEntity['mvtinterval']:
+
+				playerEntity['mvttimer'] = time.time();
 
 				if destination.y + spriteSize >= 600:
 
@@ -222,9 +228,11 @@ def run():
 
 					destination.y += stepSize;
 
-			elif keyPressed == moveLeftKey: 
+			elif keyPressed == moveLeftKey and time.time() > playerEntity['mvttimer'] + playerEntity['mvtinterval']: 
 
+				playerEntity['mvttimer'] = time.time();
 				playerEntity['orientation'] = "left";
+
 				player = setPlayerOrientation(renderer, playerEntity['orientation']);
 
 				if destination.x <= 0:
@@ -238,8 +246,9 @@ def run():
 
 					destination.x -= stepSize;
 
-			elif keyPressed == moveRightKey:
+			elif keyPressed == moveRightKey and time.time() > playerEntity['mvttimer'] + playerEntity['mvtinterval']:
 
+				playerEntity['mvttimer'] = time.time();
 				playerEntity['orientation'] = "right";
 				player = setPlayerOrientation(renderer, playerEntity['orientation']);
 
@@ -257,9 +266,11 @@ def run():
 			elif keyPressed == punchKey:
 
 				effectedEntity = detectTarget(spriteSize, playerEntity['orientation'], destination, entityList)
-				if effectedEntity:
+				if effectedEntity and time.time() > playerEntity['atttimer'] + playerEntity['attinterval']:
 
+					playerEntity['atttimer'] = time.time();
 					print "You punched!";
+
 					if effectedEntity['health'] == 1:
 
 						entityList.remove(effectedEntity);
@@ -271,9 +282,11 @@ def run():
 			elif keyPressed == kickKey:
 
 				effectedEntity = detectTarget(spriteSize, playerEntity['orientation'], destination, entityList)
-				if effectedEntity:
+				if effectedEntity and time.time() > playerEntity['atttimer'] + playerEntity['attinterval']:
 
+					playerEntity['atttimer'] = time.time();
 					print "You kicked!";
+
 					if effectedEntity['health'] == 1:
 
 						entityList.remove(effectedEntity);
@@ -290,7 +303,7 @@ def run():
 
 		for entity in entityList:
 
-			if time.time() > entity['atttimer'] + .5 and (entity['x'] == destination.x + spriteSize or entity['x'] == destination.x - spriteSize) and entity['y'] == destination.y:
+			if time.time() > entity['atttimer'] + entity['attinterval'] and (entity['x'] == destination.x + spriteSize or entity['x'] == destination.x - spriteSize) and entity['y'] == destination.y:
 
 				if playerEntity['health'] == 1:
 
@@ -302,7 +315,7 @@ def run():
 
 				print entity['name'] + "hit you!";
 
-			elif time.time() > entity['mvttimer'] + .2:
+			elif time.time() > entity['mvttimer'] + entity['mvtinterval']:
 
 				entity['mvttimer'] = time.time();
 
