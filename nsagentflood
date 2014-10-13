@@ -187,7 +187,7 @@ def run():
 
 		SDL_RenderPresent(renderer);
 
-		SDL_WaitEvent(ctypes.byref(event))
+		SDL_PollEvent(ctypes.byref(event))
 
 		if event.type == SDL_QUIT:
 
@@ -305,6 +305,8 @@ def run():
 
 			if time.time() > entity['atttimer'] + entity['attinterval'] and (entity['x'] == destination.x + spriteSize or entity['x'] == destination.x - spriteSize) and entity['y'] == destination.y:
 
+				print entity['name'] + " hit you!";
+
 				if playerEntity['health'] == 1:
 
 					print "You died."
@@ -312,8 +314,6 @@ def run():
 
 				entity['atttimer'] = time.time();
 				playerEntity['health'] -= 1;
-
-				print entity['name'] + "hit you!";
 
 			elif time.time() > entity['mvttimer'] + entity['mvtinterval']:
 
