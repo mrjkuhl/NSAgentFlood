@@ -43,7 +43,6 @@ def readEntityList(stage):
 
 	entityList = [];
 	tmpList = [];
-	tmpDict = {};
 	counter = 1;
 
 	while True:
@@ -60,17 +59,17 @@ def readEntityList(stage):
 
 			for entity in tmpList:
 
-				tmpDict['x'] = int(entity[0]);
-				tmpDict['y'] = int(entity[1]);
-				tmpDict['health'] = int(entity[2]);
-				tmpDict['atttimer'] = 0;
-				tmpDict['mvttimer'] = 0;
-				tmpDict['name'] = entity[3];
-				tmpDict['sprite'] = entity[4];
-				tmpDict['attinterval'] = .8;
-				tmpDict['mvtinterval'] = .4;
+				index = len(entityList);
 
-				entityList.append(tmpDict)
+				entityList.append({'x': int(entity[0])});
+				entityList[index]['y'] = int(entity[1]);
+				entityList[index]['health'] = int(entity[2]);
+				entityList[index]['atttimer'] = 0;
+				entityList[index]['mvttimer'] = 0;
+				entityList[index]['name'] = entity[3];
+				entityList[index]['sprite'] = entity[4];
+				entityList[index]['attinterval'] = .8;
+				entityList[index]['mvtinterval'] = .4;
 
 			return entityList;
 
