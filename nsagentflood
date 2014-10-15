@@ -59,19 +59,26 @@ def readEntityList(stage):
 
 			for entity in tmpList:
 
-				index = len(entityList);
-
-				entityList.append({'x': int(entity[0])});
-				entityList[index]['y'] = int(entity[1]);
-				entityList[index]['health'] = int(entity[2]);
-				entityList[index]['atttimer'] = 0;
-				entityList[index]['mvttimer'] = 0;
-				entityList[index]['name'] = entity[3];
-				entityList[index]['sprite'] = entity[4];
-				entityList[index]['attinterval'] = .8;
-				entityList[index]['mvtinterval'] = .4;
+				entityList = addEntity(entity, entityList);
 
 			return entityList;
+
+def addEntity(entity, entityList):
+
+	index = len(entityList);
+
+	entityList.append({'x': int(entity[0])});
+	entityList[index]['y'] = int(entity[1]);
+	entityList[index]['health'] = int(entity[2]);
+	entityList[index]['orientation'] = entity[3];
+	entityList[index]['attinterval'] = float(entity[4]);
+	entityList[index]['mvtinterval'] = float(entity[5]);
+	entityList[index]['name'] = entity[6];
+	entityList[index]['sprite'] = entity[7];
+	entityList[index]['atttimer'] = 0;
+	entityList[index]['mvttimer'] = 0;
+
+	return entityList;
 
 def readZoneList(stage):
 
