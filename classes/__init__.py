@@ -1,0 +1,2 @@
+
+spriteSize = 40;

@@ -18,77 +18,13 @@
 import sys
 import ctypes
 from sdl2 import *
+
+import classes
+import classes.player
+
 import ConfigParser
+import importlib
 import time
-
-class entity():
-
-	def __init__(self, entityValues):
-
-		self.x = int(entityValues[0]);
-		self.y = int(entityValues[1]);
-		self.health = int(entityValues[2]);
-		self.orientation = entityValues[3];
-		self.attinterval = float(entityValues[4]);
-		self.mvtinterval = float(entityValues[5]);
-		self.atttimer = int(entityValues[6]);
-		self.mvttimer = int(entityValues[7]);
-		self.name = entityValues[8];
-
-		self.sprite = "";
-		self.destination = SDL_Rect(self.x, self.y, spriteSize, spriteSize);
-		self.updateSprite();
-
-	def setOrientation(self, newOrientation):
-
-		self.orientation = newOrientation;
-
-		self.updateSprite();
-
-	def setXCoord(self, newXCoord, movementZoneList):
-
-		if self.testZone(movementZoneList, newXCoord, self.y):
-
-			self.x = newXCoord;
-
-			self.updateDestination();
-
-	def setYCoord(self, newYCoord, movementZoneList):
-
-		if self.testZone(movementZoneList, self.x, newYCoord):
-
-			self.y = newYCoord
-
-			self.updateDestination();
-
-	def updateDestination(self):
-
-		self.destination = SDL_Rect(self.x, self.y, spriteSize, spriteSize);
-	def updateSprite(self):
-
-		if self.orientation == "left":
-
-			self.sprite = SDL_LoadBMP(b"resources/" + self.name + "Left.bmp");
-
-		else:
-
-			self.sprite = SDL_LoadBMP(b"resources/" + self.name + "Right.bmp");
-
-	def testZone(self, movementZoneList, newXCoord, newYCoord):
-
-		finalx = newXCoord + spriteSize;
-		finaly = newYCoord + spriteSize;
-
-		for movementZone in movementZoneList:
-
-			movementZone = movementZone.split(',');
-			movementZone = [int(num) for num in movementZone];
-
-			if newXCoord >= movementZone[0] and newYCoord >= movementZone[1] and finalx <= movementZone[2] and newYCoord >= movementZone[3] and finalx <= movementZone[4] and finaly <= movementZone[5] and newXCoord >= movementZone[6] and finaly <= movementZone[7]:
-
-				return True;
-
-		return False;
 
 def loadMapConf(confFile):
 
@@ -113,6 +49,8 @@ def readEntityList(stage):
 	entityList = [];
 	counter = 1;
 
+	sys.path.append(world);
+
 	while True:
 
 		try:
@@ -120,7 +58,12 @@ def readEntityList(stage):
 			entityValues = stage.get('stage', "entity" + str(counter));
 			entityValues = entityValues.split(',');
 
-			entityList = addEntity(entityValues, entityList);
+			entityClass = entityValues[9];
+			entityValues.remove(entityClass);
+			classObject = importlib.import_module(b"entities." + entityValues[8]);
+			entityClass = getattr(classObject, entityClass);
+
+			entityList = addEntity(entityClass, entityValues, entityList,);
 
 			counter += 1;
 
@@ -128,9 +71,9 @@ def readEntityList(stage):
 
 			return entityList;
 
-def addEntity(entityValues, entityList):
+def addEntity(entityClass, entityValues, entityList):
 
-	entityList.append(entity(entityValues));
+	entityList.append(entityClass(entityValues));
 
 	return entityList;
 
@@ -195,7 +138,7 @@ def run():
 	src = SDL_Rect(0, 0, spriteSize, spriteSize);
 
 	playerValues = [int(windowWidth / 2 - spriteSize /2), int(windowHeight / 2 - spriteSize / 2), 10, "left", .3, .1, 0, 0, "player"];
-	player = entity(playerValues);
+	player = classes.player.Player(playerValues);
 
 	gameRun = True;
 	event = SDL_Event();
@@ -320,39 +263,7 @@ def run():
 
 		for object in entityList:
 
-			if time.time() > object.atttimer + object.attinterval and (object.x == player.x + spriteSize or object.x == player.x - spriteSize) and object.y == player.y:
-
-				print object.name + " hit you!";
-
-				if player.health == 1:
-
-					print "You died."
-					return;
-
-				object.atttimer = time.time();
-				player.health -= 1;
-
-			elif time.time() > object.mvttimer + object.mvtinterval:
-
-				object.mvttimer = time.time();
-
-				if object.x > player.x + spriteSize and object.x != player.x - spriteSize:
-
-					object.setOrientation("left");
-					object.setXCoord(object.x - stepSize, movementZoneList);
-
-				elif object.x < player.x + spriteSize and object.x != player.x - spriteSize:
-
-					object.setOrientation("right");
-					object.setXCoord(object.x + stepSize, movementZoneList);
-
-				elif object.y > player.y:
-
-					object.setYCoord(object.y - stepSize, movementZoneList);
-
-				elif object.y < player.y:
-
-					object.setYCoord(object.y + stepSize, movementZoneList);
+			object.entityAI(player, movementZoneList);
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -373,6 +284,6 @@ if __name__ == "__main__":
 	punchKey = SDLK_t;
 	kickKey = SDLK_g;
 
-	world = "./worlds/nsagentflood/"
+	world = "worlds/nsagentflood/"
 
 	sys.exit(run());
