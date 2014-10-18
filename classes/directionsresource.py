@@ -17,18 +17,10 @@
 
 import sys
 import ctypes
-from sdl2 import *
 
-from __init__ import *
-import entity
-import directionsresource
+class DirectionsResource():
 
-class Player(entity.Entity):
+	def __init__(self):
 
-	def __init__(self, entityValues, spriteResources, directionsResource):
-
-		entity.Entity.__init__(self, entityValues, "", spriteResources, directionsResource);
-
-		self.spriteLeft = SDL_LoadBMP(b"resources/" + self.name + b"Left.bmp");
-		self.spriteRight = SDL_LoadBMP(b"resources/" + self.name + b"Right.bmp");
-		self.updateSprite();
+		self.left = 'left';
+		self.right = 'right';
