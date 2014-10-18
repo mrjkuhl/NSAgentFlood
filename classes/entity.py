@@ -25,7 +25,7 @@ class Entity():
 
 	sprite = "";
 
-	def __init__(self, entityValues, world, spriteResource, directionsResource):
+	def __init__(self, entityValues, world, spriteResource):
 
 		self.x = int(entityValues[0]);
 		self.y = int(entityValues[1]);
@@ -39,7 +39,6 @@ class Entity():
 		self.destination = SDL_Rect(self.x, self.y, spriteSize, spriteSize);
 
 		self.spriteResource = spriteResource;
-		self.directionsResource = directionsResource;
 
 		self.updateSprite();
 
@@ -70,7 +69,7 @@ class Entity():
 		self.destination = SDL_Rect(self.x, self.y, spriteSize, spriteSize);
 	def updateSprite(self):
 
-		if self.orientation == self.directionsResource.left:
+		if self.orientation == DirectionsResource.left:
 
 			self.sprite = self.spriteResource.spriteLeft;
 

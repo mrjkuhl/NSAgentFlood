@@ -20,7 +20,5 @@ import ctypes
 
 class DirectionsResource():
 
-	def __init__(self):
-
-		self.left = 'left';
-		self.right = 'right';
+	left = 'left';
+	right = 'right';

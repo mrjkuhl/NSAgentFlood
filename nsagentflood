@@ -22,7 +22,7 @@ from sdl2 import *
 import classes
 import classes.player
 import classes.spriteresources
-import classes.directionsresource
+from classes.directionsresource import DirectionsResource
 
 import ConfigParser
 import importlib
@@ -82,7 +82,7 @@ def readEntityList(stage):
 
 def addEntity(entityClass, entityValues, spriteResource, entityList):
 
-	entityList.append(entityClass(entityValues, spriteResource, directionsResource));
+	entityList.append(entityClass(entityValues, spriteResource));
 
 	return entityList;
 
@@ -108,11 +108,11 @@ def detectTarget(range, orientation, destination, entityList):
 	targetx = destination.x;
 	targety = destination.y;
 
-	if orientation == directionsResource.left:
+	if orientation == DirectionsResource.left:
 
 		targetx = destination.x - range;
 
-	elif orientation == directionsResource.right:
+	elif orientation == DirectionsResource.right:
 
 		targetx = destination.x + range;
 
@@ -146,8 +146,8 @@ def run():
 
 	src = SDL_Rect(0, 0, spriteSize, spriteSize);
 
-	playerValues = [int(windowWidth / 2 - spriteSize /2), int(windowHeight / 2 - spriteSize / 2), 10, directionsResource.left, .3, .1, 0, 0, "player"];
-	player = classes.player.Player(playerValues, classes.spriteresources.SpriteResources("", "player"), directionsResource);
+	playerValues = [int(windowWidth / 2 - spriteSize /2), int(windowHeight / 2 - spriteSize / 2), 10, DirectionsResource.left, .3, .1, 0, 0, "player"];
+	player = classes.player.Player(playerValues, classes.spriteresources.SpriteResources("", "player"));
 
 	gameRun = True;
 	event = SDL_Event();
@@ -207,7 +207,7 @@ def run():
 			elif keyPressed == moveLeftKey and time.time() > player.mvttimer + player.mvtinterval: 
 
 				player.mvttimer = time.time();
-				player.setOrientation(directionsResource.left);
+				player.setOrientation(DirectionsResource.left);
 
 				if player.x <= 0:
 
@@ -221,7 +221,7 @@ def run():
 			elif keyPressed == moveRightKey and time.time() > player.mvttimer + player.mvtinterval:
 
 				player.mvttimer = time.time();
-				player.setOrientation(directionsResource.right);
+				player.setOrientation(DirectionsResource.right);
 
 				if player.x + spriteSize >= 800:
 
@@ -293,7 +293,6 @@ if __name__ == "__main__":
 	punchKey = SDLK_t;
 	kickKey = SDLK_g;
 
-	directionsResource = classes.directionsresource.DirectionsResource();
 	world = "worlds/nsagentflood/"
 
 	sys.exit(run());

@@ -26,9 +26,9 @@ import classes.entity
 
 class MadGuy(classes.entity.Entity):
 
-	def __init__(self, entityValues, spriteResource, directionsResource):
+	def __init__(self, entityValues, spriteResource):
 
-		classes.entity.Entity.__init__(self, entityValues, world, spriteResource, directionsResource);
+		classes.entity.Entity.__init__(self, entityValues, world, spriteResource);
 
 	def entityAI(self, player, movementZoneList):
 
@@ -50,12 +50,12 @@ class MadGuy(classes.entity.Entity):
 
 			if self.x > player.x + spriteSize and self.x != player.x - spriteSize:
 
-				self.setOrientation(self.directionsResource.left);
+				self.setOrientation(DirectionsResource.left);
 				self.setXCoord(self.x - stepSize, movementZoneList);
 
 			elif self.x < player.x + spriteSize and self.x != player.x - spriteSize:
 
-				self.setOrientation(self.directionsResource.right);
+				self.setOrientation(DirectionsResource.right);
 				self.setXCoord(self.x + stepSize, movementZoneList);
 
 			elif self.y > player.y:
