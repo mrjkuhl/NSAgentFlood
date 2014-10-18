@@ -24,7 +24,7 @@ sys.path.append("../../../");
 from __init__ import *
 import classes.entity
 
-class MadGuy(classes.entity.Entity):
+class BowGuy(classes.entity.Entity):
 
 	def __init__(self, entityValues, spriteResource):
 
@@ -32,7 +32,7 @@ class MadGuy(classes.entity.Entity):
 
 	def entityAI(self, player, movementZoneList):
 
-		if time.time() > self.atttimer + self.attinterval and (self.x == player.x + spriteSize or self.x == player.x - spriteSize) and self.y == player.y:
+		if time.time() > self.atttimer + self.attinterval and ((self.x <= player.x - spriteSize * 2 and self.x >= player.x - spriteSize * 5) or (self.x >= player.x + spriteSize * 3 and self.x <= player.x + spriteSize * 6)) and self.y == player.y:
 
 			print self.name + " hit you!";
 
@@ -48,12 +48,12 @@ class MadGuy(classes.entity.Entity):
 
 			self.mvttimer = time.time();
 
-			if self.x > player.x + spriteSize and self.x != player.x - spriteSize:
+			if self.x > player.x + spriteSize * 6 or (self.x > player.x - spriteSize * 2 and self.x <= player.x - spriteSize * 5):
 
 				self.setOrientation(DirectionsResource.left);
 				self.setXCoord(self.x - stepSize, movementZoneList);
 
-			elif self.x < player.x + spriteSize and self.x != player.x - spriteSize:
+			elif self.x < player.x - spriteSize * 5 or (self.x < player.x + spriteSize * 3 and self.x <= player.x - spriteSize * 6):
 
 				self.setOrientation(DirectionsResource.right);
 				self.setXCoord(self.x + stepSize, movementZoneList);
