@@ -25,7 +25,7 @@ class Entity():
 
 	sprite = "";
 
-	def __init__(self, entityValues, world):
+	def __init__(self, entityValues, world, spriteResource):
 
 		self.x = int(entityValues[0]);
 		self.y = int(entityValues[1]);
@@ -38,8 +38,7 @@ class Entity():
 		self.name = entityValues[8];
 		self.destination = SDL_Rect(self.x, self.y, spriteSize, spriteSize);
 
-		self.spriteLeft = SDL_LoadBMP(world + b"resources/" + self.name + b"Left.bmp");
-		self.spriteRight = SDL_LoadBMP(world + b"resources/" + self.name + b"Right.bmp");
+		self.spriteResource = spriteResource;
 
 		self.updateSprite();
 
@@ -72,11 +71,11 @@ class Entity():
 
 		if self.orientation == "left":
 
-			self.sprite = self.spriteLeft;
+			self.sprite = self.spriteResource.spriteLeft;
 
 		else:
 
-			self.sprite = self.spriteRight;
+			self.sprite = self.spriteResource.spriteRight;
 
 	def testZone(self, movementZoneList, newXCoord, newYCoord):
 

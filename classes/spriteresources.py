@@ -20,14 +20,14 @@ import ctypes
 from sdl2 import *
 
 from __init__ import *
-import entity
 
-class Player(entity.Entity):
+class SpriteResources():
 
-	def __init__(self, entityValues, spriteResources):
+	def __init__(self, world, mobName):
 
-		entity.Entity.__init__(self, entityValues, "", spriteResources);
+		self.spriteLeft = loadSprite(world, mobName + b"Left.bmp");
+		self.spriteRight = loadSprite(world, mobName + b"Right.bmp");
 
-		self.spriteLeft = SDL_LoadBMP(b"resources/" + self.name + b"Left.bmp");
-		self.spriteRight = SDL_LoadBMP(b"resources/" + self.name + b"Right.bmp");
-		self.updateSprite();
+def loadSprite(world, name):
+
+	return SDL_LoadBMP(world + b"resources/" + name);

@@ -26,9 +26,9 @@ import classes.entity
 
 class MadGuy(classes.entity.Entity):
 
-	def __init__(self, entityValues):
+	def __init__(self, entityValues, spriteResource):
 
-		classes.entity.Entity.__init__(self, entityValues, world);
+		classes.entity.Entity.__init__(self, entityValues, world, spriteResource);
 
 	def entityAI(self, player, movementZoneList):
 

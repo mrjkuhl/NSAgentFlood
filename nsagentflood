@@ -21,6 +21,7 @@ from sdl2 import *
 
 import classes
 import classes.player
+import classes.spriteresources
 
 import ConfigParser
 import importlib
@@ -47,6 +48,7 @@ def loadStage(renderer, stage):
 def readEntityList(stage):
 
 	entityList = [];
+	mobTypes = {};
 	counter = 1;
 
 	sys.path.append(world);
@@ -63,7 +65,13 @@ def readEntityList(stage):
 			classObject = importlib.import_module(b"entities." + entityValues[8]);
 			entityClass = getattr(classObject, entityClass);
 
-			entityList = addEntity(entityClass, entityValues, entityList,);
+			if entityValues[8] not in mobTypes:
+
+				mobTypes[entityValues[8]] = classes.spriteresources.SpriteResources(world, entityValues[8]);
+
+			spriteResource = mobTypes[entityValues[8]];
+
+			entityList = addEntity(entityClass, entityValues, spriteResource, entityList);
 
 			counter += 1;
 
@@ -71,9 +79,9 @@ def readEntityList(stage):
 
 			return entityList;
 
-def addEntity(entityClass, entityValues, entityList):
+def addEntity(entityClass, entityValues, spriteResource, entityList):
 
-	entityList.append(entityClass(entityValues));
+	entityList.append(entityClass(entityValues, spriteResource));
 
 	return entityList;
 
@@ -138,7 +146,7 @@ def run():
 	src = SDL_Rect(0, 0, spriteSize, spriteSize);
 
 	playerValues = [int(windowWidth / 2 - spriteSize /2), int(windowHeight / 2 - spriteSize / 2), 10, "left", .3, .1, 0, 0, "player"];
-	player = classes.player.Player(playerValues);
+	player = classes.player.Player(playerValues, classes.spriteresources.SpriteResources("", "player"));
 
 	gameRun = True;
 	event = SDL_Event();
