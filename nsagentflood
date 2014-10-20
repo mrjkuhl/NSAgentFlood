@@ -22,6 +22,7 @@ from sdl2 import *
 import classes
 import classes.player
 import classes.spriteresources
+from classes.entitylist import EntityList
 from classes.movementzonelist import MovementZoneList
 from classes.directionsresource import DirectionsResource
 
@@ -39,53 +40,13 @@ def loadMapConf(confFile):
 def loadStage(renderer, stage):
 
 	movementZoneList = MovementZoneList(stage);
-	entityList = readEntityList(stage);
+	entityList = EntityList(stage, world);
 
 	image = SDL_LoadBMP(world + "resources/" + stage.get('stage', 'background'));
 	background = SDL_CreateTextureFromSurface(renderer, image);
 	SDL_FreeSurface(image);
 
 	return background, movementZoneList, entityList;
-
-def readEntityList(stage):
-
-	entityList = [];
-	mobTypes = {};
-	counter = 1;
-
-	sys.path.append(world);
-
-	while True:
-
-		try:
-
-			entityValues = stage.get('stage', "entity" + str(counter));
-			entityValues = entityValues.split(',');
-
-			entityClass = entityValues[9];
-			entityValues.remove(entityClass);
-			classObject = importlib.import_module(b"entities." + entityValues[8]);
-			entityClass = getattr(classObject, entityClass);
-
-			if entityValues[8] not in mobTypes:
-
-				mobTypes[entityValues[8]] = classes.spriteresources.SpriteResources(world, entityValues[8]);
-
-			spriteResource = mobTypes[entityValues[8]];
-
-			entityList = addEntity(entityClass, entityValues, spriteResource, entityList);
-
-			counter += 1;
-
-		except:
-
-			return entityList;
-
-def addEntity(entityClass, entityValues, spriteResource, entityList):
-
-	entityList.append(entityClass(entityValues, spriteResource));
-
-	return entityList;
 
 def detectTarget(range, orientation, destination, entityList):
 
@@ -108,7 +69,7 @@ def detectTarget(range, orientation, destination, entityList):
 
 		targety = destination.y + range;
 
-	for object in entityList:
+	for object in entityList.entityList:
 
 		if object.x == targetx and object.y == targety:
 
@@ -140,7 +101,7 @@ def run():
 
 		SDL_RenderCopy(renderer, background, None, None);
 
-		for object in entityList:
+		for object in entityList.entityList:
 
 			sprite = SDL_CreateTextureFromSurface(renderer, object.sprite);
 
@@ -226,7 +187,7 @@ def run():
 
 					if effectedEntity.health == 1:
 
-						entityList.remove(effectedEntity);
+						entityList.removeEntity(effectedEntity);
 						print "You slew " + effectedEntity.name + "!";
 						continue;
 
@@ -242,7 +203,7 @@ def run():
 
 					if effectedEntity.health == 1:
 
-						entityList.remove(effectedEntity);
+						entityList.removeEntity(effectedEntity);
 						print "You slew " + effectedEntity.name + "!";
 						continue;
 
@@ -254,7 +215,7 @@ def run():
 
 				break;
 
-		for object in entityList:
+		for object in entityList.entityList:
 
 			object.entityAI(player, movementZoneList);
 
