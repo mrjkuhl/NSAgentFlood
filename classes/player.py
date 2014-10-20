@@ -27,7 +27,3 @@ class Player(entity.Entity):
 	def __init__(self, entityValues, spriteResources):
 
 		entity.Entity.__init__(self, entityValues, "", spriteResources);
-
-		self.spriteLeft = SDL_LoadBMP(b"resources/" + self.name + b"Left.bmp");
-		self.spriteRight = SDL_LoadBMP(b"resources/" + self.name + b"Right.bmp");
-		self.updateSprite();
