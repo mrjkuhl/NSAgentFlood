@@ -23,9 +23,9 @@ from __init__ import *
 
 class MovementZoneList():
 
-	zoneList = [];
-
 	def __init__(self, stage):
+
+		self.zoneList = [];
 
 		counter = 1;
 
