@@ -26,10 +26,10 @@ import spriteresources
 
 class EntityList():
 
-	entityList = [];
 
 	def __init__(self, stage, world):
 
+		self.entityList = [];
 		mobTypes = {};
 		counter = 1;
 
