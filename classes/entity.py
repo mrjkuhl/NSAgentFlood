@@ -50,19 +50,27 @@ class Entity():
 
 	def setXCoord(self, newXCoord, movementZoneList):
 
-		if self.testZone(movementZoneList, newXCoord, self.y):
+		if self.testZone(newXCoord, self.y, movementZoneList):
 
 			self.x = newXCoord;
 
 			self.updateDestination();
 
+			return True;
+
+		return False;
+
 	def setYCoord(self, newYCoord, movementZoneList):
 
-		if self.testZone(movementZoneList, self.x, newYCoord):
+		if self.testZone(self.x, newYCoord, movementZoneList):
 
 			self.y = newYCoord
 
 			self.updateDestination();
+
+			return True;
+
+		return False;
 
 	def updateDestination(self):
 
@@ -77,15 +85,12 @@ class Entity():
 
 			self.sprite = self.spriteResource.spriteRight;
 
-	def testZone(self, movementZoneList, newXCoord, newYCoord):
+	def testZone(self, newXCoord, newYCoord, movementZoneList):
 
 		finalx = newXCoord + spriteSize;
 		finaly = newYCoord + spriteSize;
 
-		for movementZone in movementZoneList:
-
-			movementZone = movementZone.split(',');
-			movementZone = [int(num) for num in movementZone];
+		for movementZone in movementZoneList.zoneList:
 
 			if newXCoord >= movementZone[0] and newYCoord >= movementZone[1] and finalx <= movementZone[2] and newYCoord >= movementZone[3] and finalx <= movementZone[4] and finaly <= movementZone[5] and newXCoord >= movementZone[6] and finaly <= movementZone[7]:
 

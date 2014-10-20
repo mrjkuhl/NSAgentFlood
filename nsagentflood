@@ -22,6 +22,7 @@ from sdl2 import *
 import classes
 import classes.player
 import classes.spriteresources
+from classes.movementzonelist import MovementZoneList
 from classes.directionsresource import DirectionsResource
 
 import ConfigParser
@@ -37,7 +38,7 @@ def loadMapConf(confFile):
 
 def loadStage(renderer, stage):
 
-	movementZoneList = readZoneList(stage);
+	movementZoneList = MovementZoneList(stage);
 	entityList = readEntityList(stage);
 
 	image = SDL_LoadBMP(world + "resources/" + stage.get('stage', 'background'));
@@ -85,23 +86,6 @@ def addEntity(entityClass, entityValues, spriteResource, entityList):
 	entityList.append(entityClass(entityValues, spriteResource));
 
 	return entityList;
-
-def readZoneList(stage):
-
-	zoneList = [];
-	counter = 1;
-
-	while True:
-
-		try:
-
-			zone = stage.get('stage', "movementZone" + str(counter));
-			zoneList.append(zone);
-			counter += 1;
-
-		except:
-
-			return zoneList;
 
 def detectTarget(range, orientation, destination, entityList):
 
