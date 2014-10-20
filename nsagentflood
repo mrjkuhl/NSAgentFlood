@@ -22,6 +22,7 @@ from sdl2 import *
 import classes
 import classes.player
 import classes.spriteresources
+from classes.world import World
 from classes.entitylist import EntityList
 from classes.movementzonelist import MovementZoneList
 from classes.directionsresource import DirectionsResource
@@ -29,24 +30,6 @@ from classes.directionsresource import DirectionsResource
 import ConfigParser
 import importlib
 import time
-
-def loadMapConf(confFile):
-
-	filePointer = ConfigParser.RawConfigParser();
-	filePointer.read(confFile);
-
-	return filePointer;
-
-def loadStage(renderer, stage):
-
-	movementZoneList = MovementZoneList(stage);
-	entityList = EntityList(stage, world);
-
-	image = SDL_LoadBMP(world + "resources/" + stage.get('stage', 'background'));
-	background = SDL_CreateTextureFromSurface(renderer, image);
-	SDL_FreeSurface(image);
-
-	return background, movementZoneList, entityList;
 
 def detectTarget(range, orientation, destination, entityList):
 
@@ -86,8 +69,7 @@ def run():
 
 	windowsurface = SDL_GetWindowSurface(window);
 
-	stage = loadMapConf(world + "level1/stages/stage1.conf");
-	background, movementZoneList, entityList = loadStage(renderer, stage);
+	worldObj = World(worldPath, renderer);
 
 	src = SDL_Rect(0, 0, spriteSize, spriteSize);
 
@@ -99,9 +81,9 @@ def run():
 
 	while gameRun:
 
-		SDL_RenderCopy(renderer, background, None, None);
+		SDL_RenderCopy(renderer, worldObj.background, None, None);
 
-		for object in entityList.entityList:
+		for object in worldObj.entityList.entityList:
 
 			sprite = SDL_CreateTextureFromSurface(renderer, object.sprite);
 
@@ -129,12 +111,11 @@ def run():
 
 				if player.y <= 0:
 
-					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageUp')  + ".conf");
-					background, movementZoneList, entityList = loadStage(renderer, stage);
-					player.setYCoord(560, movementZoneList);
+					worldObj.gotoNextStage("up");
+					player.setYCoord(560, worldObj.movementZoneList);
 					continue;
 
-				player.setYCoord(player.y - stepSize, movementZoneList);
+				player.setYCoord(player.y - stepSize, worldObj.movementZoneList);
 
 			elif keyPressed == moveDownKey and time.time() > player.mvttimer + player.mvtinterval:
 
@@ -142,12 +123,11 @@ def run():
 
 				if player.y + spriteSize >= 600:
 
-					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageDown')  + ".conf");
-					background, movementZoneList, entityList = loadStage(renderer, stage);
-					player.setYCoord(0, movementZoneList);
+					worldObj.gotoNextStage("down");
+					player.setYCoord(0, worldObj.movementZoneList);
 					continue;
 
-				player.setYCoord(player.y + stepSize, movementZoneList);
+				player.setYCoord(player.y + stepSize, worldObj.movementZoneList);
 
 			elif keyPressed == moveLeftKey and time.time() > player.mvttimer + player.mvtinterval: 
 
@@ -156,12 +136,11 @@ def run():
 
 				if player.x <= 0:
 
-					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageLeft')  + ".conf");
-					background, movementZoneList, entityList = loadStage(renderer, stage);
-					player.setXCoord(760, movementZoneList);
+					worldObj.gotoNextStage("left");
+					player.setXCoord(760, worldObj.movementZoneList);
 					continue;
 
-				player.setXCoord(player.x - stepSize, movementZoneList);
+				player.setXCoord(player.x - stepSize, worldObj.movementZoneList);
 
 			elif keyPressed == moveRightKey and time.time() > player.mvttimer + player.mvtinterval:
 
@@ -170,16 +149,15 @@ def run():
 
 				if player.x + spriteSize >= 800:
 
-					stage = loadMapConf(world + "level1/stages/" + stage.get('stage', 'stageRight')  + ".conf");
-					background, movementZoneList, entityList = loadStage(renderer, stage);
-					player.setXCoord(0, movementZoneList);
+					worldObj.gotoNextStage("right");
+					player.setXCoord(0, worldObj.movementZoneList);
 					continue;
 
-				player.setXCoord(player.x + stepSize, movementZoneList);
+				player.setXCoord(player.x + stepSize, worldObj.movementZoneList);
 
 			elif keyPressed == punchKey:
 
-				effectedEntity = detectTarget(spriteSize, player.orientation, player.destination, entityList)
+				effectedEntity = detectTarget(spriteSize, player.orientation, player.destination, worldObj.entityList)
 				if effectedEntity and time.time() > player.atttimer + player.attinterval:
 
 					player.atttimer = time.time();
@@ -187,7 +165,7 @@ def run():
 
 					if effectedEntity.health == 1:
 
-						entityList.removeEntity(effectedEntity);
+						worldObj.entityList.removeEntity(effectedEntity);
 						print "You slew " + effectedEntity.name + "!";
 						continue;
 
@@ -195,7 +173,7 @@ def run():
 
 			elif keyPressed == kickKey:
 
-				effectedEntity = detectTarget(spriteSize, player.orientation, player.destination, entityList)
+				effectedEntity = detectTarget(spriteSize, player.orientation, player.destination, worldObj.entityList)
 				if effectedEntity and time.time() > player.atttimer + player.attinterval:
 
 					player.atttimer = time.time();
@@ -203,7 +181,7 @@ def run():
 
 					if effectedEntity.health == 1:
 
-						entityList.removeEntity(effectedEntity);
+						worldObj.entityList.removeEntity(effectedEntity);
 						print "You slew " + effectedEntity.name + "!";
 						continue;
 
@@ -215,9 +193,9 @@ def run():
 
 				break;
 
-		for object in entityList.entityList:
+		for object in worldObj.entityList.entityList:
 
-			object.entityAI(player, movementZoneList);
+			object.entityAI(player, worldObj.movementZoneList);
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -238,6 +216,6 @@ if __name__ == "__main__":
 	punchKey = SDLK_t;
 	kickKey = SDLK_g;
 
-	world = "worlds/nsagentflood/"
+	worldPath = "worlds/nsagentflood/"
 
 	sys.exit(run());
